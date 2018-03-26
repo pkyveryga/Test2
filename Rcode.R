@@ -61,7 +61,7 @@ plot(price.var, model=price.vgm)
 
 ###LISA Model-- checking about spatial "hot spots in the 
 
-##Reducing the data size
+##Reducing the data size because it says about lack of memory
 ncol(train)
 train1=train[1:1000,]
 
@@ -84,4 +84,42 @@ library(PerformanceAnalytics)
 train_con=train[,3:6]
 
 chart.Correlation(train[, c(3,18:21)], histogram=TRUE, pch=10)
+
+
+############################
+###Stacking Several Models 
+## Here without predefined model parameters. 
+library(psych)
+library(caret)
+library(randomForest)
+library(caretEnsemble)
+
+head(train)
+##The dataset without Lat and Long and the 
+train1=train[,-c(1:2, 20:23)]
+head(train1)
+
+
+
+seed=111
+
+control <- trainControl(method="repeatedcv", number=10, repeats=10, savePredictions=TRUE, classProbs=TRUE)
+algorithmList <- c( 'pcr','pls','rpart')
+set.seed(seed)
+stack_models <- caretList(log(price)~., data=train, trControl=control, methodList=algorithmList)
+stacking_results <- resamples(stack_models)
+
+summary(stacking_results)
+dotplot(stacking_results)
+# Check correlation between models to ensure the results are uncorrelated and can be ensembled
+modelCor(stacking_results)
+splom(stacking_results)
+
+# stacking using Linear Regression-
+stackControl <- trainControl(method="repeatedcv", number=5, repeats=2, savePredictions=TRUE, classProbs=TRUE)
+set.seed(seed)
+stack.lm <- caretStack(stack_models, method="lm", trControl=stackControl)
+print(stack.lm)
+summary(stack.lm)
+
 
