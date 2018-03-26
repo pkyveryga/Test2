@@ -1,3 +1,5 @@
+##   This is a Test for using GitHub for the Stat 502 Kaggle Project
+
 
 library(caret)
 library(psych)
@@ -14,7 +16,6 @@ cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#0072B2", "#D55E00",
 
 
 
-
 setwd("C:/Peter/STAT/STAT502X_Modern_Multivariate/2018/ISU_Kaggle_Project/Data")
 
 test=read.csv("test.csv")
@@ -22,6 +23,7 @@ head(test)
 train=read.csv("train.csv")
 head(train)
 
+##The last collumns are Month and Day
 
 ##Ploting Spatial Data
 
@@ -41,7 +43,7 @@ ggplot(train, aes(lat, long)) +
 ##
 
 
-###Variogram
+### spatial Variogram--Checking Spatial Correlation 
 
 library(gstat)
 library(geoR)
@@ -55,9 +57,9 @@ price.var <- variogram(price~1,
 print(price.vgm <- fit.variogram(price.var, vgm(250, "Sph", 80, 100)))
 plot(price.var, model=price.vgm)
 
-###LISA Model
+###LISA Model-- checking about spatial "hot spots in the 
 
-
+##Reducing the data size
 ncol(train)
 train1=train[1:1000,]
 
@@ -65,10 +67,19 @@ train.lisa <- lisa(train$lat, train$long, train$price, neigh=10, resamp=100, qui
 
 train.lisa =plot.lisa(train.lisa, negh.mean=FALSE)
 
-
+##Increasing memory size
 memory.limit(size=50000)
 
 correlog(train1$long, train1$lat, train1$price, increment=20, resamp=500, quiet=TRUE) 
 
 plot(price.clg)
+
+
+##checking  Correlation Matrices 
+
+library(PerformanceAnalytics)
+
+train_con=train[,3:6]
+
+chart.Correlation(train[, c(3,18:21)], histogram=TRUE, pch=10)
 
