@@ -123,3 +123,28 @@ print(stack.lm)
 summary(stack.lm)
 
 
+
+
+# Root Mean Square Log Loss Error: Check!!!
+
+library (MLmetrics)
+head(train)
+
+##Checking with variables that do not have zeros
+model1=c("bedrooms","bathrooms","sqft_living")
+
+reg <- lm(log(price) ~ log(sqft_living+sqft_lot), data = train1) 
+summary(reg)
+
+reg <- lm(log(price) ~ sqft_living+sqft_lot+month, data = train) 
+
+
+RMSLE(y_pred = exp(reg$fitted.values), y_true = log(train$price))
+###10.40574
+plot(reg$fitted.values, train$price)
+
+apply(train,2,min)
+
+
+
+
