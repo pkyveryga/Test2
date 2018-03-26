@@ -12,11 +12,13 @@ library(corrplot)
 library(psych)
 
 library(ggplot2)
+
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#0072B2", "#D55E00", "#F0E442","#CC79A7","#000000","#734f80", "#2b5a74", "#004f39", "#787221", "#003959", "#6aaf00", "#663cd3")
 
 
 
-setwd("C:/Peter/STAT/STAT502X_Modern_Multivariate/2018/ISU_Kaggle_Project/Data")
+setwd("C:/Peter/STAT/STAT502X_Modern_Multivariate/2018/ISU_Kaggle_Project/GitHub/Try1/Test2/Test2")
+
 
 test=read.csv("test.csv")
 head(test)
