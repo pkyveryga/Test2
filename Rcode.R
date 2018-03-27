@@ -146,5 +146,5 @@ plot(reg$fitted.values, train$price)
 apply(train,2,min)
 
 
-
+#####  Next steps
 
