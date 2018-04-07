@@ -273,7 +273,7 @@ write.csv(x=pred_df,file="submission_April_4_Be.csv",row.names = FALSE)
 
 #######  X
 
-train2
+head(train2)
 
 
 ncol(train2)
