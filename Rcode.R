@@ -155,25 +155,7 @@ predictions=predict(stack.lm, newdata=test.data1)
                write.csv(x=pred_df,file="submission_April_2.csv",row.names = FALSE)
 
 
-# Root Mean Square Log Loss Error: Check!!!
 
-library (MLmetrics)
-head(train)
-
-##Checking with variables that do not have zeros
-model1=c("bedrooms","bathrooms","sqft_living")
-
-reg <- lm(log(price) ~ log(sqft_living+sqft_lot), data = train1) 
-summary(reg)
-
-reg <- lm(log(price) ~ sqft_living+sqft_lot+month, data = train) 
-
-
-RMSLE(y_pred = exp(reg$fitted.values), y_true = log(train$price))
-###10.40574
-plot(reg$fitted.values, train$price)
-
-apply(train,2,min)
 
 
 #####  Next steps
@@ -194,3 +176,84 @@ colnames(pred_df)<-c("id","price")
 head(pred_df)
 
 write.csv(x=pred_df,file="submission_test.csv",row.names = FALSE)
+
+
+
+
+
+###### April 7-Bernd's part
+
+###generation of date features (new in this version)
+##############
+train.date<-as.Date(x=as.character(train$date),format="%Y%m%d")
+train.year<-as.numeric(format(train.date,"%Y"))  ###use year as feature
+train.day<-as.numeric(format(train.date,"%j"))   ## decimal day of year
+train.day.norm<-((train.day-1)-364/2)/(364/2)  ##limit day range from -1 to 1
+train.day.feat1<-train.day.norm
+train.day.feat2<-train.day.norm^2
+train.day.feat3<-train.day.norm^3
+train.day.feat4<-train.day.norm^4
+
+test.date<-as.Date(x=as.character(test.data$date),format="%Y%m%d")
+test.year<-as.numeric(format(test.date,"%Y"))
+test.day<-as.numeric(format(test.date,"%j"))
+test.day.norm<-((test.day-1)-364/2)/(364/2)
+test.day.feat1<-test.day.norm
+test.day.feat2<-test.day.norm^2
+test.day.feat3<-test.day.norm^3
+test.day.feat4<-test.day.norm^4
+################end of date feature generation
+
+############################
+###Stacking Several Models
+## Here without predefined model parameters.
+library(psych)
+library(caret)
+library(randomForest)
+library(caretEnsemble)
+head(train)
+##The dataset without Lat and Long and the
+train1=train[,-c(1,2,17,18,19)] ##changed, removed property, date, zipcode,lat, long
+head(train1)
+head(train1)
+##removing several columns to match the test data
+train2=train1[,-c(18, 19)]
+train2<-cbind(train2,train.year,train.day.feat1,train.day.feat2,train.day.feat3,train.day.feat4) ####added
+head(train2)
+seed=111
+control <- trainControl(method="repeatedcv", number=10, repeats=50, savePredictions=TRUE, classProbs=TRUE)
+algorithmList <- c( 'pcr','pls','rpart', 'glmnet')
+set.seed(seed)
+stack_models <- caretList(log(price)~., data=train2, trControl=control, methodList=algorithmList)
+stacking_results <- resamples(stack_models)
+summary(stacking_results)
+dotplot(stacking_results)
+# Check correlation between models to ensure the results are uncorrelated and can be ensembled
+modelCor(stacking_results)
+splom(stacking_results)
+# stacking using Linear Regression-
+stackControl <- trainControl(method="repeatedcv", number=10, repeats=50, savePredictions=TRUE, classProbs=TRUE)
+set.seed(seed)
+stack.lm <- caretStack(stack_models, method="lm", trControl=stackControl)
+print(stack.lm)
+summary(stack.lm)
+
+##remove date
+head(test.data)
+test.data1=test.data[,c(-1,-2,-3,-17,-18,-19)] ##changed, removed id, property, date, zipcode,lat, long
+test.data1<-cbind(test.data1,test.year,test.day.feat1,test.day.feat2,test.day.feat3,test.day.feat4) ##added
+head(train1)
+##Predictions
+colnames(test.data1)[17:21]<-colnames(train2)[18:22] ##added
+predictions=predict(stack.lm, newdata=test.data1)
+
+###
+
+
+
+pred_df<-as.data.frame(cbind(1:11613,predictions))
+colnames(pred_df)<-c("id","price")
+
+head(pred_df)
+
+write.csv(x=pred_df,file="submission_April_4_Be.csv",row.names = FALSE)
