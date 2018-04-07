@@ -20,10 +20,13 @@ cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#0072B2", "#D55E00",
 setwd("C:/Peter/STAT/STAT502X_Modern_Multivariate/2018/ISU_Kaggle_Project/GitHub/Try1/Test2/Test2")
 
 
-test=read.csv("test.csv")
-head(test)
+test.data=read.csv("test.csv")
+head(test.data)
+
 train=read.csv("train.csv")
 head(train)
+
+
 
 ##The last collumns are Month and Day
 
@@ -63,9 +66,10 @@ plot(price.var, model=price.vgm)
 
 ##Reducing the data size because it says about lack of memory
 ncol(train)
-train1=train[1:1000,]
+nrow(train)
+train1=train[1:10000,]
 
-train.lisa <- lisa(train$lat, train$long, train$price, neigh=10, resamp=100, quiet=TRUE)
+train.lisa <- lisa(train$lat, train$long, train$price, neigh=10, resamp=10, quiet=TRUE)
 
 train.lisa =plot.lisa(train.lisa, negh.mean=FALSE)
 
@@ -96,17 +100,20 @@ library(caretEnsemble)
 
 head(train)
 ##The dataset without Lat and Long and the 
-train1=train[,-c(1:2, 20:23)]
+train1=train[,-c(1,2,20, 21,22,23)]
+head(train1)
 head(train1)
 
-
+##removing several columns to match the test data
+train2=train1[,-c(18, 19)]
+head(train2)
 
 seed=111
 
-control <- trainControl(method="repeatedcv", number=10, repeats=10, savePredictions=TRUE, classProbs=TRUE)
-algorithmList <- c( 'pcr','pls','rpart')
+control <- trainControl(method="repeatedcv", number=10, repeats=50, savePredictions=TRUE, classProbs=TRUE)
+algorithmList <- c( 'pcr','pls','rpart', 'glmnet')
 set.seed(seed)
-stack_models <- caretList(log(price)~., data=train, trControl=control, methodList=algorithmList)
+stack_models <- caretList(price~., data=train2, trControl=control, methodList=algorithmList)
 stacking_results <- resamples(stack_models)
 
 summary(stacking_results)
@@ -116,13 +123,35 @@ modelCor(stacking_results)
 splom(stacking_results)
 
 # stacking using Linear Regression-
-stackControl <- trainControl(method="repeatedcv", number=5, repeats=2, savePredictions=TRUE, classProbs=TRUE)
+stackControl <- trainControl(method="repeatedcv", number=10, repeats=50, savePredictions=TRUE, classProbs=TRUE)
 set.seed(seed)
 stack.lm <- caretStack(stack_models, method="lm", trControl=stackControl)
 print(stack.lm)
 summary(stack.lm)
 
 
+##remove date
+head(test.data)
+test.data1=test.data[,-c(3)]
+
+head(train1)
+
+##Predictions
+predictions=predict(stack.lm, newdata=test.data1) 
+               
+### 
+
+
+
+
+               
+               
+               pred_df<-as.data.frame(cbind(1:11613,predictions))
+               colnames(pred_df)<-c("id","price")
+               
+               head(pred_df)
+               
+               write.csv(x=pred_df,file="submission_April_2.csv",row.names = FALSE)
 
 
 # Root Mean Square Log Loss Error: Check!!!
@@ -148,3 +177,19 @@ apply(train,2,min)
 
 #####  Next steps
 
+## Bernd's RF --NO Lat and Long
+require(randomForest)
+start.time<-Sys.time()
+rf<-randomForest(price~.,data=train1,
+                 type="regression",ntree=100,mtry=4)
+Sys.time()-start.time
+1
+
+predictions<-predict(object=rf,newdata=test.data)
+
+pred_df<-as.data.frame(cbind(1:11613,predictions))
+colnames(pred_df)<-c("id","price")
+
+head(pred_df)
+
+write.csv(x=pred_df,file="submission_test.csv",row.names = FALSE)
