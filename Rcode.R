@@ -17,7 +17,7 @@ cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#0072B2", "#D55E00",
 
 
 
-setwd("C:/Peter/STAT/STAT502X_Modern_Multivariate/2018/ISU_Kaggle_Project/GitHub/Try1/Test2/Test2")
+setwd("C:/Peter/STAT/STAT502X_Modern_Multivariate/2018/ISU_Kaggle_Project/GitHub/Test2/")
 ####this comment added online on github - branch_test_bernd
 #this comment added in RStudio - Bernd
 
@@ -179,7 +179,7 @@ write.csv(x=pred_df,file="submission_test.csv",row.names = FALSE)
 
 
 
-
+##################################################################
 
 ###### April 7-Bernd's part
 
