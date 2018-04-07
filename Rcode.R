@@ -260,6 +260,7 @@ length(train.year)
 length(test.year)
 ###
 
+ghhgg
 
 
 pred_df<-as.data.frame(cbind(1:11613,predictions))
@@ -271,20 +272,20 @@ write.csv(x=pred_df,file="submission_April_4_Be.csv",row.names = FALSE)
 
 
 
-#######  X
+#######  Checking the XG Boost in a caret
 
 head(train2)
 
 
 ncol(train2)
 
-Numtrain2<-train2
-for (i in 1:21) {
+Numtrain2<-train3
+for (i in 1:24) {
   Numtrain2[,i]<-as.double(Numtrain2[,i])
 }
 
 XGBTune<-train(y=log(Numtrain2[,1]),
-               x=Numtrain2[,2:21],
+               x=Numtrain2[,2:24],
                method="xgbTree",
                trControl=trainControl(method="repeatedcv",
                                       repeats=2,number=8))
@@ -294,19 +295,101 @@ plot(XGBTune)
 XGBTune$bestTune
 
 
-NumAmesHouse<-AmesHouse
-for (i in 1:14) {
-  NumAmesHouse[,i]<-as.double(NumAmesHouse[,i])
-}
+## Scatter 3D
+library(plotly)
 
-XGBTune<-train(y=NumAmesHouse[,1],
-               x=NumAmesHouse[,2:15],
-               method="xgbTree",
-               trControl=trainControl(method="repeatedcv",
-                                      repeats=2,number=8))
 
-XGBTune
-plot(XGBTune)
-XGBTune$bestTune
+head(train1)
+t
+
+train1$view[which(train1$waterfront == 0)] <- 'waterfront no'
+train1$view[which(train1$waterfront == 1)] <- 'o'
+train1$view <- as.factor(train1$view)
+
+
+
+p <- plot_ly(train1, x = ~sqft_above, y = ~log(price), z = ~sqft_lot, color = ~waterfront, colors = c('#BF382A', '#0C4B8E')) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis = list(title = 'sqft_above'),
+                      yaxis = list(title = 'log price'),
+                      zaxis = list(title = 'sqft_lot')))
+
+
+p
+
+
+
+
+
+p1 <- plot_ly(train1, x = ~sqft_above, y = ~log(price), z = ~sqft_lot, color = ~floors, colors = c('#BF382A', '#0C4B8E')) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis = list(title = 'sqft_above'),
+                      yaxis = list(title = 'log price'),
+                      zaxis = list(title = 'sqft_lot')))
+
+
+p1
+
+
+
+
+p1 <- plot_ly(train1, x = ~sqft_above, y = ~log(price), z = ~yr_built, color = ~floors, colors = c('#BF382A', '#0C4B8E')) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis = list(title = 'sqft_above'),
+                      yaxis = list(title = 'log price'),
+                      zaxis = list(title = 'yr_built')))
+
+
+p1
+
+
+
+
+
+p1 <- plot_ly(train1, x = ~sqft_above, y = ~log(price), z = ~yr_built, color = ~floors, colors = c('#BF382A', '#0C4B8E')) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis = list(title = 'sqft_above'),
+                      yaxis = list(title = 'log price'),
+                      zaxis = list(title = 'yr_built')))
+
+
+p1
+
+
+
+
+
+p1 <- plot_ly(train1, x = ~sqft_above, y = ~log(price), z = ~yr_built, color = ~floors, colors = c('#BF382A', '#0C4B8E')) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis = list(title = 'sqft_above'),
+                      yaxis = list(title = 'log price'),
+                      zaxis = list(title = 'yr_built')))
+
+
+p1
+
+
+
+
+
+p1 <- plot_ly(train1, x = ~sqft_above, y = ~log(price), z = ~yr_built, color = ~floors, colors = c('#BF382A', '#0C4B8E')) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis = list(title = 'sqft_above'),
+                      yaxis = list(title = 'log price'),
+                      zaxis = list(title = 'yr_built')))
+
+
+p1
+
+
+p2 <- plot_ly(train1, x = ~yr_built, y = ~log(price), z = ~sqft_above, color = ~condition, colors = c('#BF382A', '#0C4B8E')) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis = list(title = 'yr built'),
+                        yaxis = list(title = 'log price'),
+                        zaxis = list(title = 'sqft_above')))
+
+
+
+p2
 
 
