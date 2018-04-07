@@ -155,7 +155,7 @@ predictions=predict(stack.lm, newdata=test.data1)
                write.csv(x=pred_df,file="submission_April_2.csv",row.names = FALSE)
 
 
-
+head(train1)
 
 
 #####  Next steps
@@ -169,6 +169,7 @@ Sys.time()-start.time
 1
 
 predictions<-predict(object=rf,newdata=test.data)
+head(predictions)
 
 pred_df<-as.data.frame(cbind(1:11613,predictions))
 colnames(pred_df)<-c("id","price")
@@ -218,10 +219,11 @@ head(train1)
 head(train1)
 ##removing several columns to match the test data
 train2=train1[,-c(18, 19)]
+head(train2)
 train2<-cbind(train2,train.year,train.day.feat1,train.day.feat2,train.day.feat3,train.day.feat4) ####added
 head(train2)
 seed=111
-control <- trainControl(method="repeatedcv", number=10, repeats=50, savePredictions=TRUE, classProbs=TRUE)
+control <- trainControl(method="repeatedcv", number=10, repeats=5, savePredictions=TRUE, classProbs=TRUE)
 algorithmList <- c( 'pcr','pls','rpart', 'glmnet')
 set.seed(seed)
 stack_models <- caretList(log(price)~., data=train2, trControl=control, methodList=algorithmList)
@@ -231,22 +233,31 @@ dotplot(stacking_results)
 # Check correlation between models to ensure the results are uncorrelated and can be ensembled
 modelCor(stacking_results)
 splom(stacking_results)
-# stacking using Linear Regression-
-stackControl <- trainControl(method="repeatedcv", number=10, repeats=50, savePredictions=TRUE, classProbs=TRUE)
+# stacking using Linear Regression- or Random Forest
+stackControl <- trainControl(method="repeatedcv", number=10, repeats=5, savePredictions=TRUE, classProbs=TRUE)
 set.seed(seed)
-stack.lm <- caretStack(stack_models, method="lm", trControl=stackControl)
+stack.lm <- caretStack(stack_models, method="rf", trControl=stackControl)
 print(stack.lm)
 summary(stack.lm)
 
+
+#Checking train2
+head(train2)
 ##remove date
 head(test.data)
 test.data1=test.data[,c(-1,-2,-3,-17,-18,-19)] ##changed, removed id, property, date, zipcode,lat, long
 test.data1<-cbind(test.data1,test.year,test.day.feat1,test.day.feat2,test.day.feat3,test.day.feat4) ##added
-head(train1)
+head(test.data1)
+ncol(test.data1)
 ##Predictions
 colnames(test.data1)[17:21]<-colnames(train2)[18:22] ##added
+
 predictions=predict(stack.lm, newdata=test.data1)
 
+
+##
+length(train.year)
+length(test.year)
 ###
 
 
@@ -257,3 +268,8 @@ colnames(pred_df)<-c("id","price")
 head(pred_df)
 
 write.csv(x=pred_df,file="submission_April_4_Be.csv",row.names = FALSE)
+
+
+
+#######
+
