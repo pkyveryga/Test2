@@ -393,3 +393,34 @@ p2 <- plot_ly(train1, x = ~yr_built, y = ~log(price), z = ~sqft_above, color = ~
 p2
 
 
+head(train1)
+p3 <- plot_ly(train1, x = ~sqft_living15, y = ~log(price), z = ~sqft_lot15, color = ~condition, colors = c('#BF382A', '#0C4B8E')) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis = list(title = 'sqft_living15'),
+                      yaxis = list(title = 'log price'),
+                      zaxis = list(title = 'sqft_lot15')))
+
+
+
+p3
+
+
+
+
+library(scatterplot3d)
+
+
+with(train1, {
+  scatterplot3d(yr_built,   # x axis
+                sqft_lot15,     # y axis
+                log(price),    # z axis
+                main="3-D Scatterplot Example 1")
+})
+
+
+
+  scatterplot3d(disp,   # x axis
+                wt,     # y axis
+                mpg,    # z axis
+                main="3-D Scatterplot Example 1")
+})
